@@ -1,0 +1,27 @@
+FROM node:18
+
+WORKDIR /app
+
+# Copiar arquivos de dependências primeiro
+COPY package*.json ./
+
+# Instalar dependências
+RUN npm install
+
+# Copiar o schema do Prisma
+COPY prisma ./prisma/
+
+# Gerar o Prisma Client
+RUN npx prisma generate
+
+# Copiar o restante do código
+COPY . .
+
+# Construir a aplicação
+RUN npm run build
+
+# Expor a porta
+EXPOSE 3000
+
+# Executar migrations e iniciar (migrations devem rodar em runtime, não em build time)
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:dev"]
