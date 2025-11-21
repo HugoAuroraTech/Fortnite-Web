@@ -36,7 +36,7 @@ export class AuthService {
       },
     });
 
-    return this.generateToken(user.id, user.email);
+    return this.generateTokenWithUser(user);
   }
 
   async login(data: LoginDto) {
@@ -49,12 +49,20 @@ export class AuthService {
     if (!passwordValid)
       throw new UnauthorizedException('Credenciais inválidas.');
 
-    return this.generateToken(user.id, user.email);
+    return this.generateTokenWithUser(user);
   }
 
-  private generateToken(id: string, email: string) {
-    const payload = { sub: id, email };
+  private generateTokenWithUser(user: any) {
+    const payload = { sub: user.id, email: user.email };
     const access_token = this.jwt.sign(payload);
-    return { access_token };
+
+    // Remover password antes de retornar
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...userWithoutPassword } = user;
+
+    return {
+      access_token,
+      user: userWithoutPassword
+    };
   }
 }

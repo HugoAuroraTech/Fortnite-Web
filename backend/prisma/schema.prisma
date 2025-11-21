@@ -9,9 +9,294 @@ generator client {
 }
 
 model User {
+  id            String          @id @default(cuid())
+  email         String          @unique
+  password      String
+  vbucks        Int             @default(10000)
+  cosmetics     UserCosmetic[]
+  transactions  Transaction[]
+  createdAt     DateTime        @default(now())
+}
+
+model Cosmetic {
+  id              String          @id
+  name            String
+  description     String?
+  type            String?         // outfit, pickaxe, track, etc.
+  rarity          String?
+  series          String?
+  setName         String?
+  category        CosmeticCategory @default(BR)
+  shopHistory     Json?           // datas em que esteve na loja
+  addedAt         DateTime?       // data de adição na API
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @default(now()) @updatedAt
+
+  // Relações com modelos especializados
+  brCosmetic      BRCosmetic?
+  track           Track?
+  instrument      Instrument?
+  car             Car?
+  legoItem        LegoItem?
+  legoKit         LegoKit?
+  bean            Bean?
+
+  bundles         BundleCosmetic[]
+  shopEntries     ShopEntry[]
+  users           UserCosmetic[]
+  transactions    Transaction[]
+}
+
+model Bundle {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  info        String?
+  imageUrl    String?
+  price       Int?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  cosmetics      BundleCosmetic[]
+  shopEntries    ShopEntry[]
+  userCosmetics  UserCosmetic[]
+
+  Transaction Transaction[]
+}
+
+model BundleCosmetic {
   id          String   @id @default(cuid())
-  email       String   @unique
-  password    String
-  vbucks      Int      @default(10000)
-  createdAt   DateTime @default(now())
+  bundleId    String
+  cosmeticId  String
+
+  Bundle      Bundle   @relation(fields: [bundleId], references: [id])
+  Cosmetic    Cosmetic @relation(fields: [cosmeticId], references: [id])
+
+  @@unique([bundleId, cosmeticId])
+}
+
+model ShopEntry {
+  id                    String     @id @default(cuid())
+  offerId               String?    @unique
+  devName               String?
+  regularPrice          Int?
+  finalPrice            Int?
+  bannerText            String?
+  bannerValue           String?
+  bannerIntensity       String?
+  bannerBackendValue    String?
+  offerTagId            String?
+  offerTagText          String?
+  inDate                DateTime?
+  outDate               DateTime?
+  layoutId              String?
+  layoutName            String?
+  sortPriority          Int?
+  isGiftable            Boolean?   @default(false)
+  isRefundable          Boolean?   @default(false)
+  bundleId              String?
+  cosmeticId            String?
+  trackId               String?
+  instrumentId          String?
+  carId                 String?
+  legoKitId             String?
+  category              String?    // tipo de exibição na loja (Featured, Daily, etc.)
+  rawData               Json?      // guarda dados completos do endpoint
+
+  // Layout design properties
+  layoutBackground      String?
+  layoutForeground      String?
+  layoutBanner          String?
+  layoutBodyImage       String?
+  layoutColor1          String?
+  layoutColor3          String?
+  layoutTextBgColor     String?
+  layoutAlignment       String?
+  layoutTitleColorA     String?
+  layoutTitleColorB     String?
+  layoutTitle           String?
+  layoutSubtitle        String?
+  layoutCta             String?
+  displayType           String?
+  tileSize              String?
+
+  Bundle                Bundle?      @relation(fields: [bundleId], references: [id])
+  Cosmetic              Cosmetic?    @relation(fields: [cosmeticId], references: [id])
+  Track                 Track?       @relation(fields: [trackId], references: [id])
+  Instrument            Instrument?  @relation(fields: [instrumentId], references: [id])
+  Car                   Car?         @relation(fields: [carId], references: [id])
+  LegoKit               LegoKit?     @relation(fields: [legoKitId], references: [id])
+}
+
+model UserCosmetic {
+  id            String   @id @default(cuid())
+  userId        String
+  cosmeticId    String
+  bundleId      String?  // Se foi comprado em um bundle
+  acquiredAt    DateTime @default(now())
+  refundedAt    DateTime?
+  isActive      Boolean  @default(true)
+
+  User          User     @relation(fields: [userId], references: [id])
+  Cosmetic      Cosmetic @relation(fields: [cosmeticId], references: [id])
+  Bundle        Bundle?  @relation(fields: [bundleId], references: [id])
+}
+
+model Transaction {
+  id            String   @id @default(cuid())
+  userId        String
+  cosmeticId    String?
+  bundleId      String?
+  type          TransactionType
+  amount        Int
+  createdAt     DateTime @default(now())
+
+  User          User     @relation(fields: [userId], references: [id])
+  Cosmetic      Cosmetic? @relation(fields: [cosmeticId], references: [id])
+  Bundle        Bundle?   @relation(fields: [bundleId], references: [id])
+}
+
+// Modelos especializados por tipo de cosmético
+
+model BRCosmetic {
+  id                      String    @id
+  exclusiveDescription    String?
+  unlockRequirements      String?
+  customExclusiveCallout  String?
+  imageSmallIcon          String?
+  imageIcon               String?
+  imageFeatured           String?
+  imageLegoSmall          String?
+  imageLegoLarge          String?
+  imageLegoWide           String?
+  imageBeanSmall          String?
+  imageBeanLarge          String?
+  variants                Json?     // array de variants
+  introduction            Json?     // { chapter, season, text, backendValue }
+  builtInEmoteIds         Json?     // array de IDs
+  searchTags              Json?     // array de tags
+  gameplayTags            Json?     // array de tags
+  metaTags                Json?     // array de tags
+  showcaseVideo           String?
+  dynamicPakId            String?
+  itemPreviewHeroPath     String?
+  displayAssetPath        String?
+  definitionPath          String?
+  path                    String?
+  price                   Int?
+  isNew                   Boolean   @default(false)
+  isOnSale                Boolean   @default(false)
+
+  Cosmetic                Cosmetic  @relation(fields: [id], references: [id], onDelete: Cascade)
+}
+
+model Track {
+  id                String      @id
+  devName           String?
+  title             String?
+  artist            String?
+  album             String?
+  releaseYear       Int?
+  bpm               Int?
+  duration          Int?
+  difficulty        Json?       // { vocals, guitar, bass, plasticBass, drums, plasticDrums }
+  genres            Json?       // array de gêneros
+  albumArt          String?
+  gameplayTags      Json?       // array de tags
+  price             Int?
+  isNew             Boolean     @default(false)
+  isOnSale          Boolean     @default(false)
+
+  Cosmetic          Cosmetic    @relation(fields: [id], references: [id], onDelete: Cascade)
+  shopEntries       ShopEntry[]
+}
+
+model Instrument {
+  id                String      @id
+  imageSmall        String?
+  imageLarge        String?
+  gameplayTags      Json?       // array de tags
+  path              String?
+  showcaseVideo     String?
+  price             Int?
+  isNew             Boolean     @default(false)
+  isOnSale          Boolean     @default(false)
+
+  Cosmetic          Cosmetic    @relation(fields: [id], references: [id], onDelete: Cascade)
+  shopEntries       ShopEntry[]
+}
+
+model Car {
+  id                String      @id
+  vehicleId         String?
+  imageSmall        String?
+  imageLarge        String?
+  gameplayTags      Json?       // array de tags
+  path              String?
+  showcaseVideo     String?
+  price             Int?
+  isNew             Boolean     @default(false)
+  isOnSale          Boolean     @default(false)
+
+  Cosmetic          Cosmetic    @relation(fields: [id], references: [id], onDelete: Cascade)
+  shopEntries       ShopEntry[]
+}
+
+model LegoItem {
+  id                String      @id
+  cosmeticId        String?
+  soundLibraryTags  Json?       // array de tags
+  imageSmall        String?
+  imageLarge        String?
+  imageWide         String?
+  path              String?
+  price             Int?
+  isNew             Boolean     @default(false)
+  isOnSale          Boolean     @default(false)
+
+  Cosmetic          Cosmetic    @relation(fields: [id], references: [id], onDelete: Cascade)
+}
+
+model LegoKit {
+  id                String      @id
+  imageSmall        String?
+  imageLarge        String?
+  imageWide         String?
+  gameplayTags      Json?       // array de tags
+  path              String?
+  price             Int?
+  isNew             Boolean     @default(false)
+  isOnSale          Boolean     @default(false)
+
+  Cosmetic          Cosmetic    @relation(fields: [id], references: [id], onDelete: Cascade)
+  shopEntries       ShopEntry[]
+}
+
+model Bean {
+  id                String      @id
+  cosmeticId        String?
+  gender            String?
+  imageSmall        String?
+  imageLarge        String?
+  gameplayTags      Json?       // array de tags
+  path              String?
+  price             Int?
+  isNew             Boolean     @default(false)
+  isOnSale          Boolean     @default(false)
+
+  Cosmetic          Cosmetic    @relation(fields: [id], references: [id], onDelete: Cascade)
+}
+
+enum TransactionType {
+  PURCHASE
+  REFUND
+}
+
+enum CosmeticCategory {
+  BR
+  TRACK
+  INSTRUMENT
+  CAR
+  LEGO
+  LEGOKIT
+  BEAN
 }

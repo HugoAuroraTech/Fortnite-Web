@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Limpar Storage - Fortnite Web</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .container {
+      text-align: center;
+      padding: 2rem;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 1rem;
+      backdrop-filter: blur(10px);
+    }
+    button {
+      margin-top: 1rem;
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      background: white;
+      color: #667eea;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      transform: scale(1.05);
+    }
+    .success {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(34, 197, 94, 0.2);
+      border-radius: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧹 Limpar Storage</h1>
+    <p>Clique no botão abaixo para limpar todos os dados salvos</p>
+    <button onclick="clearStorage()">Limpar Tudo</button>
+    <div id="message"></div>
+  </div>
+
+  <script>
+    function clearStorage() {
+      localStorage.clear();
+      sessionStorage.clear();
+      const message = document.getElementById('message');
+      message.className = 'success';
+      message.innerHTML = '✅ Storage limpo com sucesso!<br><a href="/" style="color: white;">Voltar para Home</a>';
+    }
+  </script>
+</body>
+</html>
+
+

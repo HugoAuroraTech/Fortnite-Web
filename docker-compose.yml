@@ -13,10 +13,9 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   backend:
-    build: ./backend
-    command: npm run start:dev
-    volumes:
-      - ./backend:/app
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
@@ -24,6 +23,17 @@ services:
       JWT_SECRET: uma_chave_super_segura
     depends_on:
       - db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://backend:3000
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
 
 volumes:
   pgdata:

@@ -1,0 +1,16 @@
+-- AlterTable
+ALTER TABLE "ShopEntry" ADD COLUMN     "displayType" TEXT,
+ADD COLUMN     "layoutAlignment" TEXT,
+ADD COLUMN     "layoutBackground" TEXT,
+ADD COLUMN     "layoutBanner" TEXT,
+ADD COLUMN     "layoutBodyImage" TEXT,
+ADD COLUMN     "layoutColor1" TEXT,
+ADD COLUMN     "layoutColor3" TEXT,
+ADD COLUMN     "layoutCta" TEXT,
+ADD COLUMN     "layoutForeground" TEXT,
+ADD COLUMN     "layoutSubtitle" TEXT,
+ADD COLUMN     "layoutTextBgColor" TEXT,
+ADD COLUMN     "layoutTitle" TEXT,
+ADD COLUMN     "layoutTitleColorA" TEXT,
+ADD COLUMN     "layoutTitleColorB" TEXT,
+ADD COLUMN     "tileSize" TEXT;
