@@ -151,3 +151,26 @@ Fortnite-Web/
 - **Agendamentos**: o serviço `shop.scheduler` roda jobs (via `@nestjs/schedule`) para atualizar automaticamente a loja com base na API oficial, garantindo dados frescos sem intervenção manual.
 
 > Em caso de dúvidas ou para novos ambientes (homolog/produção), basta atualizar as variáveis definidas acima e reconstruir os serviços.
+
+## 🚀 Deploy em Produção
+
+Para fazer deploy do projeto em produção, consulte o guia completo em [DEPLOY.md](./DEPLOY.md).
+
+**Plataformas recomendadas:**
+- **Railway** (mais simples) - Deploy automático via Git, SSL gratuito, PostgreSQL gerenciado
+- **Render** - Plano gratuito disponível, fácil configuração
+- **DigitalOcean** - App Platform ou VPS para mais controle
+- **VPS** (AWS, Hetzner, Contabo) - Controle total, use `docker-compose.prod.yml`
+
+**Arquivos importantes:**
+- `docker-compose.prod.yml` - Configuração otimizada para produção
+- `env.example` - Template de variáveis de ambiente
+- `DEPLOY.md` - Guia detalhado de deploy
+
+**Checklist rápido:**
+1. Configure variáveis de ambiente (copie `env.example` para `.env`)
+2. Use senhas fortes para `POSTGRES_PASSWORD` e `JWT_SECRET`
+3. Configure `VITE_API_BASE_URL` com a URL pública da sua API
+4. Configure SSL/HTTPS
+5. Execute `docker compose -f docker-compose.prod.yml up -d --build`
+6. Sincronize os dados: `curl -X POST https://sua-api.com/cosmetics/sync`
