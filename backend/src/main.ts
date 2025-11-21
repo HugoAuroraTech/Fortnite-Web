@@ -18,11 +18,30 @@ async function bootstrap() {
 
   // Enable CORS for frontend
   const allowedOrigins = process.env.NODE_ENV === 'production'
-    ? [process.env.FRONTEND_URL]
+    ? [
+        process.env.FRONTEND_URL,
+        'https://fortnite-web-production.up.railway.app',
+        // Permite qualquer subdomínio do Railway em produção
+      ].filter(Boolean)
     : ['http://localhost:5173', 'http://localhost:5174'];
 
   app.enableCors({
-    origin: allowedOrigins.filter(Boolean),
+    origin: (origin, callback) => {
+      // Permite requisições sem origin (como Postman, curl)
+      if (!origin) return callback(null, true);
+
+      // Em produção, permite qualquer domínio .railway.app
+      if (process.env.NODE_ENV === 'production' && origin.includes('.railway.app')) {
+        return callback(null, true);
+      }
+
+      // Verifica lista de origens permitidas
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   });
 
